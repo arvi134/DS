@@ -8,9 +8,12 @@ const diseaseName = document.getElementById('diseaseName');
 const confidenceValue = document.getElementById('confidenceValue');
 const remedyText = document.getElementById('remedy');
 
+let uploadedFileName = "";
+
 imageInput.addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) {
+        uploadedFileName = file.name.toLowerCase(); // Store filename for "smart" prediction
         const reader = new FileReader();
         reader.onload = function(e) {
             imagePreview.src = e.target.result;
@@ -21,7 +24,7 @@ imageInput.addEventListener('change', function(event) {
     }
 });
 
-// Simulate AI Prediction
+// Simulate AI Prediction based on Filename
 function predictDisease() {
     // Show loading
     loading.style.display = 'block';
@@ -32,31 +35,54 @@ function predictDisease() {
         loading.style.display = 'none';
         resultBox.style.display = 'block';
 
-        // Mock logic: Randomly select a result for demonstration
-        // In a real app, you would send the image to a Python/Flask backend here.
-        const outcomes = [
-            { 
+        let result;
+
+        // SMART SIMULATION LOGIC
+        // If the filename contains "health", show Healthy result.
+        if (uploadedFileName.includes("health")) {
+            result = { 
                 name: "Healthy Plant", 
                 conf: "98%", 
                 color: "green",
                 remedy: "Your plant looks great! Keep up the regular watering and sunlight." 
-            },
-            { 
+            };
+        } 
+        // If filename contains "blight", show Blight.
+        else if (uploadedFileName.includes("blight")) {
+            result = { 
                 name: "Early Blight (Fungal)", 
                 conf: "87%", 
                 color: "orange",
                 remedy: "Remedy: Remove affected leaves. Apply a copper-based fungicide. Improve air circulation." 
-            },
-            { 
+            };
+        }
+        // If filename contains "spot", show Bacterial Spot.
+        else if (uploadedFileName.includes("spot")) {
+            result = { 
                 name: "Bacterial Spot", 
                 conf: "92%", 
                 color: "red",
                 remedy: "Remedy: Avoid overhead watering. Use copper sprays. Remove infected plant debris immediately." 
-            }
-        ];
-
-        // Randomly pick one
-        const result = outcomes[Math.floor(Math.random() * outcomes.length)];
+            };
+        }
+        // Fallback: If name is generic (e.g., "image.jpg"), pick random
+        else {
+            const outcomes = [
+                { 
+                    name: "Healthy Plant", 
+                    conf: "95%", 
+                    color: "green",
+                    remedy: "Your plant looks healthy." 
+                },
+                { 
+                    name: "Leaf Rust", 
+                    conf: "89%", 
+                    color: "brown",
+                    remedy: "Remedy: Prune infected leaves and apply sulfur-based fungicides." 
+                }
+            ];
+            result = outcomes[Math.floor(Math.random() * outcomes.length)];
+        }
 
         // Update UI
         diseaseName.innerText = result.name;
